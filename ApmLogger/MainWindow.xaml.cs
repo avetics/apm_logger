@@ -14,6 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO.Ports;
 using System.Threading;
+using System.IO;
+
 
 
 namespace ApmLogger
@@ -26,146 +28,104 @@ namespace ApmLogger
 
         static bool _continue;
         static SerialPort _serialPort;
+        static string port;
+        
+
+        static string path = @"apm_log.csv";
+
 
         public MainWindow()
         {
             InitializeComponent();
-            
+            if (SerialPort.GetPortNames().Count() > 0) {
+                port = SerialPort.GetPortNames().First();
+                statusText.Content = "To Log Data click Start";
+
+            }
+            else
+            {
+                port = "";
+                portText.Text = "";
+                startBtn.IsEnabled = false;
+                stopBtn.IsEnabled = false;
+                statusText.Content = "No Serial connection";
+            }
+            main = this;
+
         }
 
+        internal static MainWindow main;
+        internal string Status
+        {
+            get { return statusText.Content.ToString(); }
+            set { Dispatcher.Invoke(new Action(() => { statusText.Content = value; })); }
+        }
 
 
         public static void Read()
         {
+
+
             while (_continue)
             {
                 try
                 {
                     string message = _serialPort.ReadLine();
-                    Console.WriteLine(message);
+                    IList<string> data = message.Split(',');
+                    Console.WriteLine(data[1]);
+                    TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
+                    int ctime = (int)t.TotalSeconds;
+
+                    MainWindow.main.Status  = String.Format("Gimbal Pitch:{0}, Up Lidar: {1}", data[0], data[1]);
+
+                    using (StreamWriter sw = File.AppendText(path))
+                    {
+                        sw.WriteLine("{0},{1},{2}",t,data[0],data[1]);
+
+
+                   
+                    }
+
                 }
                 catch (TimeoutException) { }
             }
         }
 
-        public static string SetPortName(string defaultPortName)
-        {
-            string portName;
+       
 
-            Console.WriteLine("Available Ports:");
-            foreach (string s in SerialPort.GetPortNames())
-            {
-                Console.WriteLine("   {0}", s);
-            }
+      
 
-            Console.Write("COM port({0}): ", defaultPortName);
-            portName = Console.ReadLine();
+       
+       
 
-            if (portName == "")
-            {
-                portName = defaultPortName;
-            }
-            return portName;
-        }
+       
 
-        public static int SetPortBaudRate(int defaultPortBaudRate)
-        {
-            string baudRate;
-
-            Console.Write("Baud Rate({0}): ", defaultPortBaudRate);
-            baudRate = Console.ReadLine();
-
-            if (baudRate == "")
-            {
-                baudRate = defaultPortBaudRate.ToString();
-            }
-
-            return int.Parse(baudRate);
-        }
-
-        public static Parity SetPortParity(Parity defaultPortParity)
-        {
-            string parity;
-
-            Console.WriteLine("Available Parity options:");
-            foreach (string s in Enum.GetNames(typeof(Parity)))
-            {
-                Console.WriteLine("   {0}", s);
-            }
-
-            Console.Write("Parity({0}):", defaultPortParity.ToString());
-            parity = Console.ReadLine();
-
-            if (parity == "")
-            {
-                parity = defaultPortParity.ToString();
-            }
-
-            return (Parity)Enum.Parse(typeof(Parity), parity);
-        }
-
-        public static int SetPortDataBits(int defaultPortDataBits)
-        {
-            string dataBits;
-
-            Console.Write("Data Bits({0}): ", defaultPortDataBits);
-            dataBits = Console.ReadLine();
-
-            if (dataBits == "")
-            {
-                dataBits = defaultPortDataBits.ToString();
-            }
-
-            return int.Parse(dataBits);
-        }
-
-        public static StopBits SetPortStopBits(StopBits defaultPortStopBits)
-        {
-            string stopBits;
-
-            Console.WriteLine("Available Stop Bits options:");
-            foreach (string s in Enum.GetNames(typeof(StopBits)))
-            {
-                Console.WriteLine("   {0}", s);
-            }
-
-            Console.Write("Stop Bits({0}):", defaultPortStopBits.ToString());
-            stopBits = Console.ReadLine();
-
-            if (stopBits == "")
-            {
-                stopBits = defaultPortStopBits.ToString();
-            }
-
-            return (StopBits)Enum.Parse(typeof(StopBits), stopBits);
-        }
-
-        public static Handshake SetPortHandshake(Handshake defaultPortHandshake)
-        {
-            string handshake;
-
-            Console.WriteLine("Available Handshake options:");
-            foreach (string s in Enum.GetNames(typeof(Handshake)))
-            {
-                Console.WriteLine("   {0}", s);
-            }
-
-            Console.Write("Handshake({0}):", defaultPortHandshake.ToString());
-            handshake = Console.ReadLine();
-
-            if (handshake == "")
-            {
-                handshake = defaultPortHandshake.ToString();
-            }
-
-            return (Handshake)Enum.Parse(typeof(Handshake), handshake);
-        }
+       
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
+            _continue = true;
+
+            if (!File.Exists(path))
+            {
+                // Create a file to write to.
+                using (StreamWriter sw = File.CreateText(path))
+                {
+                   
+                }
+            }
             
-            string name = "COM5";
-            string message;
+
+            Thread t = new Thread(parseSerialData);
+            t.Start();
+
+            startBtn.IsEnabled = false;
+
+        }
+
+
+        private void parseSerialData()
+        {
             StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
             Thread readThread = new Thread(Read);
 
@@ -173,7 +133,7 @@ namespace ApmLogger
             _serialPort = new SerialPort();
 
             // Allow the user to set the appropriate properties.
-            _serialPort.PortName = "COM5";
+            _serialPort.PortName = port;
             _serialPort.BaudRate = 115200;
             _serialPort.Parity = Parity.None;
             _serialPort.DataBits = 8;
@@ -188,29 +148,22 @@ namespace ApmLogger
             _continue = true;
             readThread.Start();
 
-      
-            Console.WriteLine("Type QUIT to exit");
-
-            while (_continue)
-            {
-                message = Console.ReadLine();
-
-                if (stringComparer.Equals("quit", message))
-                {
-                    _continue = false;
-                }
-                else
-                {
-                    _serialPort.WriteLine(
-                        String.Format("<{0}>: {1}", name, message));
-                }
-            }
-
+         
             readThread.Join();
             _serialPort.Close();
 
-          
+        }
+        private void textBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
 
+        }
+
+        private void cancel_button_Click(object sender, RoutedEventArgs e)
+        {
+            _continue = false;
+            System.Diagnostics.Process.Start("notepad.exe", path);
+            startBtn.IsEnabled = true;
+            MainWindow.main.Status = "Click Start to log APM Data";
         }
     }
 }
