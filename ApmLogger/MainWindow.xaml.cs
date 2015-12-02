@@ -106,14 +106,12 @@ namespace ApmLogger
         {
             _continue = true;
 
-            if (!File.Exists(path))
-            {
-                // Create a file to write to.
+          
                 using (StreamWriter sw = File.CreateText(path))
                 {
                    
                 }
-            }
+            
             
 
             Thread t = new Thread(parseSerialData);
