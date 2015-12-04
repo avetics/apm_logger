@@ -16,6 +16,8 @@ using System.IO.Ports;
 using System.Threading;
 using System.IO;
 using System.Management;
+using SCIP_library;
+
 
 
 
@@ -30,60 +32,14 @@ namespace ApmLogger
 
         static bool _continue;
         static SerialPort _serialPort;
-        static string port;
+        static string apmPort;
+        static string hPort;
         static string path = @"apm_log.csv";
         
         public MainWindow()
         {
             InitializeComponent();
-
-            ManagementScope connectionScope = new ManagementScope();
-            SelectQuery serialQuery = new SelectQuery("SELECT * FROM Win32_SerialPort");
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher(connectionScope, serialQuery);
-
-            try
-            {
-                foreach (ManagementObject item in searcher.Get())
-                {
-                    string desc = item["Description"].ToString();
-                    string deviceId = item["DeviceID"].ToString();
-
-                    Console.WriteLine(deviceId);
-                    
-                    if (desc.Contains("Arduino"))
-                    {
-                        // return deviceId;
-                        Console.WriteLine("Arduino");
-                        port = deviceId;
-                    }
-
-                    if (desc.Contains("URG"))
-                    {
-                        // return deviceId;
-                        Console.WriteLine("URG");
-                    }
-                }
-            }
-            catch (ManagementException e)
-            {
-                /* Do Nothing */
-                statusText.Content = "Please plug in the Hokuyu and APM";
-                startBtn.IsEnabled = false;
-                stopBtn.IsEnabled = false;
-            }
-
-
-            if (SerialPort.GetPortNames().Count() > 0) {
-              
-                statusText.Content = "To Log Data click Start";
-
-            }
-            else
-            {
-                port = "";
-                portText.Text = "";
-               
-            }
+            refreshComPorts();
             main = this;
 
         }
@@ -139,20 +95,11 @@ namespace ApmLogger
         private void button_Click(object sender, RoutedEventArgs e)
         {
             _continue = true;
-
-          
-                using (StreamWriter sw = File.CreateText(path))
-                {
-                   
-                }
-            
-            
-
+        using (StreamWriter sw = File.CreateText(path))
+        {}
             Thread t = new Thread(parseSerialData);
             t.Start();
-
             startBtn.IsEnabled = false;
-
         }
 
 
@@ -165,7 +112,7 @@ namespace ApmLogger
             _serialPort = new SerialPort();
 
             // Allow the user to set the appropriate properties.
-            _serialPort.PortName = port;
+            _serialPort.PortName = apmPort;
             _serialPort.BaudRate = 115200;
             _serialPort.Parity = Parity.None;
             _serialPort.DataBits = 8;
@@ -194,6 +141,53 @@ namespace ApmLogger
             System.Diagnostics.Process.Start("notepad.exe", path);
             startBtn.IsEnabled = true;
             MainWindow.main.Status = "Click Start to log APM Data";
+        }
+
+        private void button_Click_1(object sender, RoutedEventArgs e)
+        {
+            refreshComPorts();
+        }
+
+        public void refreshComPorts()
+        {
+            ManagementScope connectionScope = new ManagementScope();
+            SelectQuery serialQuery = new SelectQuery("SELECT * FROM Win32_SerialPort");
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher(connectionScope, serialQuery);
+
+            try
+            {
+                foreach (ManagementObject item in searcher.Get())
+                {
+                    string desc = item["Description"].ToString();
+                    string deviceId = item["DeviceID"].ToString();
+
+                    Console.WriteLine(deviceId);
+
+                    if (desc.Contains("Arduino"))
+                    {
+                        // return deviceId;
+                        Console.WriteLine("Arduino");
+                        apmPort = deviceId;
+                        apmComLabel.Content = deviceId;
+                    }
+
+                    if (desc.Contains("URG"))
+                    {
+                        // return deviceId;
+                        Console.WriteLine("URG");
+                        hPort = deviceId;
+                        hokuyuComLabel.Content = deviceId;
+
+                    }
+                }
+            }
+            catch (ManagementException e)
+            {
+                /* Do Nothing */
+                statusText.Content = "Please plug in the Hokuyu and APM";
+                startBtn.IsEnabled = false;
+                stopBtn.IsEnabled = false;
+            }
         }
     }
 }
