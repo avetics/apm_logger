@@ -39,7 +39,7 @@ namespace ApmLogger
         //Global data vars
         static string gimbal;
         static string up_lidar;
-
+        static string down_lidar;
         
         public MainWindow()
         {
@@ -65,15 +65,17 @@ namespace ApmLogger
                 try
                 {
                     string message = _serialPort.ReadLine();
+                    //Console.WriteLine(message);
                     IList<string> data = message.Split(',');
                    // Console.WriteLine(data[1]);
                     TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
                     int ctime = (int)t.TotalSeconds;
 
-                    MainWindow.main.Status  = String.Format("Gimbal Pitch:{0}, Up Lidar: {1}", data[0], data[1]);
+                    MainWindow.main.Status  = String.Format("Gimbal Pitch:{0}, Up Lidar: {1} Down Lidar {2}", data[0], data[1], data[2]);
 
                     gimbal = data[0];
                     up_lidar = data[1];
+                    down_lidar = data[2];
 
                   //  using (StreamWriter sw = File.AppendText(path))
                   //  {
@@ -157,12 +159,12 @@ namespace ApmLogger
                     string receive_data = urg.ReadLine();
                     if (!SCIP_Reader.MD(receive_data, ref time_stamp, ref distances))
                     {
-                        Console.WriteLine(receive_data);
+                        //Console.WriteLine(receive_data);
                         break;
                     }
                     if (distances.Count == 0)
                     {
-                        Console.WriteLine(receive_data);
+                        //Console.WriteLine(receive_data);
                         continue;
                     }
                     // show distance data
@@ -170,7 +172,7 @@ namespace ApmLogger
 
                     using (StreamWriter sw = File.AppendText(path))
                     {
-                        sw.WriteLine(time_stamp.ToString() + "," + gimbal + "," + up_lidar + "," + parse_distance(distances));
+                        sw.WriteLine(time_stamp.ToString() + "," + gimbal + "," + up_lidar + "," + down_lidar +"," + parse_distance(distances));
                     }
                 }
 
