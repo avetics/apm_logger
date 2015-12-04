@@ -35,6 +35,11 @@ namespace ApmLogger
         static string apmPort;
         static string hPort;
         static string path = @"apm_log.csv";
+
+        //Global data vars
+        static string gimbal;
+        static string up_lidar;
+
         
         public MainWindow()
         {
@@ -54,51 +59,43 @@ namespace ApmLogger
 
         public static void Read()
         {
-
-
+            
             while (_continue)
             {
                 try
                 {
                     string message = _serialPort.ReadLine();
                     IList<string> data = message.Split(',');
-                    Console.WriteLine(data[1]);
+                   // Console.WriteLine(data[1]);
                     TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
                     int ctime = (int)t.TotalSeconds;
 
                     MainWindow.main.Status  = String.Format("Gimbal Pitch:{0}, Up Lidar: {1}", data[0], data[1]);
 
-                    using (StreamWriter sw = File.AppendText(path))
-                    {
-                        sw.WriteLine("{0},{1},{2}",t,data[0],data[1]);
+                    gimbal = data[0];
+                    up_lidar = data[1];
 
-
-                   
-                    }
+                  //  using (StreamWriter sw = File.AppendText(path))
+                  //  {
+                  //      sw.WriteLine("{0},{1},{2}",t,data[0],data[1]);
+                  //  }
 
                 }
                 catch (TimeoutException) { }
             }
         }
 
-       
-
       
-
-       
-       
-
-       
-
-       
-
         private void button_Click(object sender, RoutedEventArgs e)
         {
             _continue = true;
-        using (StreamWriter sw = File.CreateText(path))
-        {}
+            using (StreamWriter sw = File.CreateText(path))
+            {}
             Thread t = new Thread(parseSerialData);
             t.Start();
+            Thread h = new Thread(parseHokuyuData);
+            h.Start();
+
             startBtn.IsEnabled = false;
         }
 
@@ -132,7 +129,68 @@ namespace ApmLogger
             _serialPort.Close();
 
         }
-    
+      
+
+        private void parseHokuyuData()
+        {
+           // const int GET_NUM = 10;
+            const int start_step = 0;
+            const int end_step = 760;
+            try
+            {
+          
+                SerialPort urg = new SerialPort(hPort, 115200);
+                urg.NewLine = "\n\n";
+
+                urg.Open();
+
+                urg.Write(SCIP_Writer.SCIP2());
+                urg.ReadLine(); // ignore echo back
+                urg.Write(SCIP_Writer.MD(start_step, end_step));
+                urg.ReadLine(); // ignore echo back
+
+                List<long> distances = new List<long>();
+                long time_stamp = 0;
+                //for (int i = 0; i < GET_NUM; ++i)
+                while(_continue)
+                {
+                    string receive_data = urg.ReadLine();
+                    if (!SCIP_Reader.MD(receive_data, ref time_stamp, ref distances))
+                    {
+                        Console.WriteLine(receive_data);
+                        break;
+                    }
+                    if (distances.Count == 0)
+                    {
+                        Console.WriteLine(receive_data);
+                        continue;
+                    }
+                    // show distance data
+                    //Console.WriteLine(time_stamp.ToString() +"," + gimbal + "," + up_lidar+","+parse_distance(distances));
+
+                    using (StreamWriter sw = File.AppendText(path))
+                    {
+                        sw.WriteLine(time_stamp.ToString() + "," + gimbal + "," + up_lidar + "," + parse_distance(distances));
+                    }
+                }
+
+                urg.Write(SCIP_Writer.QT()); // stop measurement mode
+                urg.ReadLine(); // ignore echo back
+                urg.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+           
+        }
+
+        private string parse_distance(List<long> distances)
+        {
+            string result = "";
+            result = string.Join(":", distances);
+            return result;
+        }
         
 
         private void cancel_button_Click(object sender, RoutedEventArgs e)
