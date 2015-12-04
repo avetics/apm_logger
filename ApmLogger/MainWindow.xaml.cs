@@ -15,6 +15,8 @@ using System.Windows.Shapes;
 using System.IO.Ports;
 using System.Threading;
 using System.IO;
+using System.Management;
+
 
 
 
@@ -29,16 +31,50 @@ namespace ApmLogger
         static bool _continue;
         static SerialPort _serialPort;
         static string port;
-        
-
         static string path = @"apm_log.csv";
-
-
+        
         public MainWindow()
         {
             InitializeComponent();
+
+            ManagementScope connectionScope = new ManagementScope();
+            SelectQuery serialQuery = new SelectQuery("SELECT * FROM Win32_SerialPort");
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher(connectionScope, serialQuery);
+
+            try
+            {
+                foreach (ManagementObject item in searcher.Get())
+                {
+                    string desc = item["Description"].ToString();
+                    string deviceId = item["DeviceID"].ToString();
+
+                    Console.WriteLine(deviceId);
+                    
+                    if (desc.Contains("Arduino"))
+                    {
+                        // return deviceId;
+                        Console.WriteLine("Arduino");
+                        port = deviceId;
+                    }
+
+                    if (desc.Contains("URG"))
+                    {
+                        // return deviceId;
+                        Console.WriteLine("URG");
+                    }
+                }
+            }
+            catch (ManagementException e)
+            {
+                /* Do Nothing */
+                statusText.Content = "Please plug in the Hokuyu and APM";
+                startBtn.IsEnabled = false;
+                stopBtn.IsEnabled = false;
+            }
+
+
             if (SerialPort.GetPortNames().Count() > 0) {
-                port = SerialPort.GetPortNames().First();
+              
                 statusText.Content = "To Log Data click Start";
 
             }
@@ -46,9 +82,7 @@ namespace ApmLogger
             {
                 port = "";
                 portText.Text = "";
-                startBtn.IsEnabled = false;
-                stopBtn.IsEnabled = false;
-                statusText.Content = "No Serial connection";
+               
             }
             main = this;
 
@@ -151,10 +185,8 @@ namespace ApmLogger
             _serialPort.Close();
 
         }
-        private void textBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
+    
+        
 
         private void cancel_button_Click(object sender, RoutedEventArgs e)
         {

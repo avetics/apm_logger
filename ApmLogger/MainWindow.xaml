@@ -8,7 +8,7 @@
         Title="APMLogger" Height="350" Width="525">
     <Grid>
         <Button x:Name="stopBtn" Content="Stop APM Log" HorizontalAlignment="Left" Margin="285,236,0,0" VerticalAlignment="Top" Width="197"  Height="48" Click="cancel_button_Click"/>
-        <TextBox x:Name="portText" HorizontalAlignment="Left" Height="48" Margin="249,36,0,0" TextWrapping="Wrap" Text="COM5" VerticalAlignment="Top" Width="96" TextChanged="textBox_TextChanged" FontSize="26.667" TextAlignment="Center"/>
+        <TextBox x:Name="portText" HorizontalAlignment="Left" Height="48" Margin="249,36,0,0" TextWrapping="Wrap" Text="COM5" VerticalAlignment="Top" Width="96" FontSize="26.667" TextAlignment="Center"/>
         <Label x:Name="label" Content="Port" HorizontalAlignment="Left" Margin="173,34,0,0" VerticalAlignment="Top" Height="48" Width="71" FontSize="26.667"/>
         <Button x:Name="startBtn" Content="Start APM Log" HorizontalAlignment="Left" Margin="49,236,0,0" VerticalAlignment="Top" Width="194" Click="button_Click" Height="48"/>
         <Label x:Name="statusText" Content="Label" Margin="70,142,50,0" VerticalAlignment="Top" Width="400" Height="42" FontSize="20"/>
