@@ -5,19 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ApmLogger"
         mc:Ignorable="d"
-        Title="DataLogger" Height="294.8" Width="525">
-    <Grid Margin="0,0,0,22.6">
+        Title="DataLogger" Height="540.4" Width="520.2">
+    <Grid Margin="0,0,0.2,-16.8">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="stopBtn" Content="Stop APM Log" HorizontalAlignment="Left" Margin="273,185,0,0" VerticalAlignment="Top" Width="197"  Height="48" Click="cancel_button_Click"/>
-        <Label x:Name="label" Content="APM " HorizontalAlignment="Left" Margin="86,57,0,0" VerticalAlignment="Top" Height="48" Width="71" FontSize="21.333"/>
-        <Button x:Name="startBtn" Content="Start APM Log" HorizontalAlignment="Left" Margin="49,185,0,0" VerticalAlignment="Top" Width="194" Click="button_Click" Height="48"/>
-        <Label x:Name="statusText" Content="" Margin="70,114,50,0" VerticalAlignment="Top" Width="400" Height="42" FontSize="13.333" HorizontalAlignment="Center"/>
-        <Label x:Name="label_Copy" Content="Hokuyu" HorizontalAlignment="Left" Margin="283,55,0,0" VerticalAlignment="Top" Height="48" Width="102" FontSize="21.333"/>
-        <Label x:Name="apmComLabel" Content="" HorizontalAlignment="Left" Margin="157,57,0,0" VerticalAlignment="Top" Height="48" Width="71" FontSize="21.333"/>
+        <Button x:Name="stopBtn" Content="Stop APM Log" HorizontalAlignment="Left" Margin="253,460,0,0" VerticalAlignment="Top" Width="146"  Height="30" Click="cancel_button_Click"/>
+        <Label x:Name="label" Content="APM " HorizontalAlignment="Left" Margin="77,359,0,0" VerticalAlignment="Top" Height="48" Width="71" FontSize="21.333"/>
+        <Button x:Name="startBtn" Content="Start APM Log" HorizontalAlignment="Left" Margin="86,460,0,0" VerticalAlignment="Top" Width="144" Click="button_Click" Height="30"/>
+        <Label x:Name="statusText" Content="" Margin="58,416,57.2,0" VerticalAlignment="Top" Width="400" Height="42" FontSize="13.333" HorizontalAlignment="Center"/>
+        <Label x:Name="label_Copy" Content="Hokuyu" HorizontalAlignment="Left" Margin="274,357,0,0" VerticalAlignment="Top" Height="48" Width="102" FontSize="21.333"/>
+        <Label x:Name="apmComLabel" Content="" HorizontalAlignment="Left" Margin="148,359,0,0" VerticalAlignment="Top" Height="48" Width="71" FontSize="21.333"/>
         <Label x:Name="hokuyuComLabel" Content="" HorizontalAlignment="Left" Margin="385,57,0,0" VerticalAlignment="Top" Height="48" Width="71" FontSize="21.333"/>
-        <Button x:Name="button" Content="Refresh" HorizontalAlignment="Left" Margin="222,10,0,0" VerticalAlignment="Top" Width="69" Height="36" Click="button_Click_1"/>
+        <Button x:Name="button" Content="Refresh" HorizontalAlignment="Left" Margin="213,312,0,0" VerticalAlignment="Top" Width="69" Height="36" Click="button_Click_1"/>
+        <Canvas x:Name="canvas" HorizontalAlignment="Left" Height="300" Margin="5,0,0,0" VerticalAlignment="Top" Width="500"/>
 
     </Grid>
 </Window>

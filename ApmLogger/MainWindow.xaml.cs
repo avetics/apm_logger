@@ -46,8 +46,45 @@ namespace ApmLogger
         {
             InitializeComponent();
             refreshComPorts();
+
+
+            var allLines = System.IO.File.ReadAllLines(@"sample.txt").ToList();
+            float angle = 0;
+            float increment = 1/4.22f;
+            foreach(string s in allLines) {
+                AddLineWithLengthAndAngle(angle, float.Parse(s));
+                angle = angle + increment;
+            }
+            
             main = this;
 
+
+        }
+
+        private void AddLineWithLengthAndAngle(float a, float length)
+        {
+            double angle = (Math.PI / -180.0) * a;
+            double x1 = 250;
+            double y1 = 250;
+            double x2 = x1 + (Math.Cos(angle) * length);
+            double y2 = y1 + (Math.Sin(angle) * length);
+            int intX1 = Convert.ToInt32(x1);
+            int intY1 = Convert.ToInt32(y1);
+            int intX2 = Convert.ToInt32(x2);
+            int intY2 = Convert.ToInt32(y2);
+
+
+
+            Line line = new Line();
+            line.Visibility = System.Windows.Visibility.Visible;
+            line.StrokeThickness = 1;
+            line.Stroke = System.Windows.Media.Brushes.Red;
+            line.X1 = intX1;
+            line.X2 = intX2;
+            line.Y1 = intY1;
+            line.Y2 = intY2;
+
+            canvas.Children.Add(line);
         }
 
         internal static MainWindow main;
