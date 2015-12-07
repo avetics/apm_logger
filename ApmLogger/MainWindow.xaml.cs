@@ -40,6 +40,7 @@ namespace ApmLogger
         static string gimbal;
         static string up_lidar;
         static string down_lidar;
+        static string filesize;
         
         public MainWindow()
         {
@@ -71,7 +72,7 @@ namespace ApmLogger
                     TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
                     int ctime = (int)t.TotalSeconds;
 
-                    MainWindow.main.Status  = String.Format("Gimbal Pitch:{0}, Up Lidar: {1} Down Lidar {2}", data[0], data[1], data[2]);
+                    MainWindow.main.Status  = String.Format("Pitch:{0}, Up Lidar: {1} Down Lidar {2}, filesile {3}", data[0], data[1], data[2], filesize);
 
                     gimbal = data[0];
                     up_lidar = data[1];
@@ -172,6 +173,11 @@ namespace ApmLogger
 
                     using (StreamWriter sw = File.AppendText(path))
                     {
+                        sw.AutoFlush = true; 
+                        long length = sw.BaseStream.Length;//will give expected output
+                        long KB = length / 1024;
+                        long MB = KB / 1024;
+                        filesize = String.Format("{0} MB", MB);
                         sw.WriteLine(time_stamp.ToString() + "," + gimbal + "," + up_lidar + "," + down_lidar +"," + parse_distance(distances));
                     }
                 }
