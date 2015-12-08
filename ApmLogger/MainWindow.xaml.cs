@@ -39,6 +39,7 @@ namespace ApmLogger
         static string apmPort;
         static string hPort;
         static string path = @"apm_log.csv";
+        const int scan_width = 1080;
 
         //Global data vars
         static string gimbal;
@@ -218,7 +219,7 @@ namespace ApmLogger
         {
            // const int GET_NUM = 10;
             const int start_step = 0;
-            const int end_step = 760;
+            const int end_step = scan_width;
             try
             {
           
