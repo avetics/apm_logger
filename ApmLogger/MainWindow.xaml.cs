@@ -11,12 +11,15 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Windows.Threading;
 using System.Windows.Shapes;
 using System.IO.Ports;
 using System.Threading;
 using System.IO;
 using System.Management;
 using SCIP_library;
+using System.Timers;
+
 
 
 
@@ -31,6 +34,7 @@ namespace ApmLogger
     {
 
         static bool _continue;
+        static bool _visualize;
         static SerialPort _serialPort;
         static string apmPort;
         static string hPort;
@@ -41,24 +45,56 @@ namespace ApmLogger
         static string up_lidar;
         static string down_lidar;
         static string filesize;
+        static List<long> last_distances;
+      
         
         public MainWindow()
         {
             InitializeComponent();
             refreshComPorts();
-
-
-            var allLines = System.IO.File.ReadAllLines(@"sample.txt").ToList();
-            float angle = 0;
-            float increment = 1/4.22f;
-            foreach(string s in allLines) {
-                AddLineWithLengthAndAngle(angle, float.Parse(s));
-                angle = angle + increment;
-            }
-            
             main = this;
 
+            System.Timers.Timer aTimer = new System.Timers.Timer();
+            aTimer.Elapsed += new System.Timers.ElapsedEventHandler(OnTimedEvent);
+            aTimer.Interval = 1000;
+            aTimer.Enabled = true;
 
+
+            _visualize = false;
+        }
+
+        private void OnTimedEvent(object source, ElapsedEventArgs e)
+        {
+            if (_visualize)
+            {
+               // Console.WriteLine("Hello World!");
+
+              //  vd = last_distances;
+              //  List<long> vd = new List<long>(last_distances);
+                //  Console.WriteLine("Count lines {0}", vd.Count());
+
+              //  Console.WriteLine("DRAW LINES");
+
+                Dispatcher.Invoke(new Action(() => { h_visualize(new List<long>(last_distances)); }));
+
+            }
+
+        }
+
+        private void h_visualize(List<long> d)
+        {
+            //var allLines = System.IO.File.ReadAllLines(@"sample.txt").ToList();
+
+            Dispatcher.Invoke(new Action(() => { canvas.Children.Clear(); }));
+
+           
+            float angle = 0;
+            float increment = 1 / 4.22f;
+            foreach (long s in d)
+            {
+                AddLineWithLengthAndAngle(angle, s);
+                angle = angle + increment;
+            }
         }
 
         private void AddLineWithLengthAndAngle(float a, float length)
@@ -66,15 +102,13 @@ namespace ApmLogger
             double angle = (Math.PI / -180.0) * a;
             double x1 = 250;
             double y1 = 250;
-            double x2 = x1 + (Math.Cos(angle) * length);
-            double y2 = y1 + (Math.Sin(angle) * length);
+            double x2 = x1 + (Math.Cos(angle) * length/25);
+            double y2 = y1 + (Math.Sin(angle) * length/25);
             int intX1 = Convert.ToInt32(x1);
             int intY1 = Convert.ToInt32(y1);
             int intX2 = Convert.ToInt32(x2);
             int intY2 = Convert.ToInt32(y2);
-
-
-
+            
             Line line = new Line();
             line.Visibility = System.Windows.Visibility.Visible;
             line.StrokeThickness = 1;
@@ -84,7 +118,13 @@ namespace ApmLogger
             line.Y1 = intY1;
             line.Y2 = intY2;
 
-            canvas.Children.Add(line);
+            //Console.WriteLine(angle);
+
+            //canvas.Children.Add(line);
+
+
+            Dispatcher.Invoke(new Action(() => { canvas.Children.Add(line); }));
+
         }
 
         internal static MainWindow main;
@@ -93,6 +133,8 @@ namespace ApmLogger
             get { return statusText.Content.ToString(); }
             set { Dispatcher.Invoke(new Action(() => { statusText.Content = value; })); }
         }
+
+      
 
 
         public static void Read()
@@ -109,7 +151,7 @@ namespace ApmLogger
                     TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
                     int ctime = (int)t.TotalSeconds;
 
-                    MainWindow.main.Status  = String.Format("Pitch:{0}, Up Lidar: {1} Down Lidar {2}, filesile {3}", data[0], data[1], data[2], filesize);
+                    MainWindow.main.Status  = String.Format("Pitch:{0}, Up Lidar:{1} Down Lidar:{2}, size:{3}", data[0], data[1], data[2], filesize);
 
                     gimbal = data[0];
                     up_lidar = data[1];
@@ -119,7 +161,7 @@ namespace ApmLogger
                   //  {
                   //      sw.WriteLine("{0},{1},{2}",t,data[0],data[1]);
                   //  }
-
+                    
                 }
                 catch (TimeoutException) { }
             }
@@ -135,8 +177,9 @@ namespace ApmLogger
             t.Start();
             Thread h = new Thread(parseHokuyuData);
             h.Start();
-
+            //parseHokuyuData();
             startBtn.IsEnabled = false;
+            _visualize = true;
         }
 
 
@@ -216,6 +259,9 @@ namespace ApmLogger
                         long MB = KB / 1024;
                         filesize = String.Format("{0} MB", MB);
                         sw.WriteLine(time_stamp.ToString() + "," + gimbal + "," + up_lidar + "," + down_lidar +"," + parse_distance(distances));
+                       
+
+                        last_distances = distances;
                     }
                 }
 
@@ -241,6 +287,7 @@ namespace ApmLogger
         private void cancel_button_Click(object sender, RoutedEventArgs e)
         {
             _continue = false;
+            _visualize = false;
             System.Diagnostics.Process.Start("notepad.exe", path);
             startBtn.IsEnabled = true;
             MainWindow.main.Status = "Click Start to log APM Data";

@@ -16,7 +16,7 @@
         <Label x:Name="statusText" Content="" Margin="58,416,57.2,0" VerticalAlignment="Top" Width="400" Height="42" FontSize="13.333" HorizontalAlignment="Center"/>
         <Label x:Name="label_Copy" Content="Hokuyu" HorizontalAlignment="Left" Margin="274,357,0,0" VerticalAlignment="Top" Height="48" Width="102" FontSize="21.333"/>
         <Label x:Name="apmComLabel" Content="" HorizontalAlignment="Left" Margin="148,359,0,0" VerticalAlignment="Top" Height="48" Width="71" FontSize="21.333"/>
-        <Label x:Name="hokuyuComLabel" Content="" HorizontalAlignment="Left" Margin="385,57,0,0" VerticalAlignment="Top" Height="48" Width="71" FontSize="21.333"/>
+        <Label x:Name="hokuyuComLabel" Content="" HorizontalAlignment="Left" Margin="363,363,0,0" VerticalAlignment="Top" Height="48" Width="71" FontSize="21.333"/>
         <Button x:Name="button" Content="Refresh" HorizontalAlignment="Left" Margin="213,312,0,0" VerticalAlignment="Top" Width="69" Height="36" Click="button_Click_1"/>
         <Canvas x:Name="canvas" HorizontalAlignment="Left" Height="300" Margin="5,0,0,0" VerticalAlignment="Top" Width="500"/>
 
