@@ -88,7 +88,7 @@ namespace ApmLogger
             Dispatcher.Invoke(new Action(() => { canvas.Children.Clear(); }));
 
            
-            float angle = 0;
+            float angle = -45;
             float increment = 1 / 4.0f;// 4.22f;
             foreach (long s in d)
             {
@@ -158,7 +158,9 @@ namespace ApmLogger
                         up_lidar = data[1];
                         down_lidar = data[2];
                     }
-                    catch { }
+                    catch {
+                        MainWindow.main.Status = String.Format("Date Error");
+                    }
                    
 
                   
