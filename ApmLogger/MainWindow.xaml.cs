@@ -45,8 +45,12 @@ namespace ApmLogger
         static string gimbal;
         static string up_lidar;
         static string down_lidar;
-        static string filesize;
+        static string filesize = "0 MB";
         static List<long> last_distances;
+
+        static int zoom_max = 50;
+        static int zoom_increment = 5;
+        static int current_zoom = 25;
       
         
         public MainWindow()
@@ -57,7 +61,7 @@ namespace ApmLogger
 
             System.Timers.Timer aTimer = new System.Timers.Timer();
             aTimer.Elapsed += new System.Timers.ElapsedEventHandler(OnTimedEvent);
-            aTimer.Interval = 1000;
+            aTimer.Interval = 1080;
             aTimer.Enabled = true;
 
 
@@ -66,18 +70,13 @@ namespace ApmLogger
 
         private void OnTimedEvent(object source, ElapsedEventArgs e)
         {
-            if (_visualize)
+           if (_visualize)
             {
-               // Console.WriteLine("Hello World!");
-
-              //  vd = last_distances;
-              //  List<long> vd = new List<long>(last_distances);
-                //  Console.WriteLine("Count lines {0}", vd.Count());
-
-              //  Console.WriteLine("DRAW LINES");
-
-                Dispatcher.Invoke(new Action(() => { h_visualize(new List<long>(last_distances)); }));
-
+                if (last_distances != null)
+                {
+                    Dispatcher.Invoke(new Action(() => { h_visualize(new List<long>(last_distances)); })); 
+                    
+                }
             }
 
         }
@@ -90,7 +89,7 @@ namespace ApmLogger
 
            
             float angle = 0;
-            float increment = 1 / 4.22f;
+            float increment = 1 / 4.0f;// 4.22f;
             foreach (long s in d)
             {
                 AddLineWithLengthAndAngle(angle, s);
@@ -103,8 +102,8 @@ namespace ApmLogger
             double angle = (Math.PI / -180.0) * a;
             double x1 = 250;
             double y1 = 250;
-            double x2 = x1 + (Math.Cos(angle) * length/25);
-            double y2 = y1 + (Math.Sin(angle) * length/25);
+            double x2 = x1 + (Math.Cos(angle) * length/current_zoom);
+            double y2 = y1 + (Math.Sin(angle) * length/current_zoom);
             int intX1 = Convert.ToInt32(x1);
             int intY1 = Convert.ToInt32(y1);
             int intX2 = Convert.ToInt32(x2);
@@ -152,11 +151,17 @@ namespace ApmLogger
                     TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
                     int ctime = (int)t.TotalSeconds;
 
-                    MainWindow.main.Status  = String.Format("Pitch:{0}, Up Lidar:{1} Down Lidar:{2}, size:{3}", data[0], data[1], data[2], filesize);
+                    try
+                    {
+                        MainWindow.main.Status = String.Format("size:{3} Pitch:{0} Lidar:{1}/{2}", data[0], data[1], data[2], filesize);
+                        gimbal = data[0];
+                        up_lidar = data[1];
+                        down_lidar = data[2];
+                    }
+                    catch { }
+                   
 
-                    gimbal = data[0];
-                    up_lidar = data[1];
-                    down_lidar = data[2];
+                  
 
                   //  using (StreamWriter sw = File.AppendText(path))
                   //  {
@@ -259,10 +264,14 @@ namespace ApmLogger
                         long KB = length / 1024;
                         long MB = KB / 1024;
                         filesize = String.Format("{0} MB", MB);
+                       // Console.WriteLine("{0} Distance values", distances.Count());
+
                         sw.WriteLine(time_stamp.ToString() + "," + gimbal + "," + up_lidar + "," + down_lidar +"," + parse_distance(distances));
-                       
 
                         last_distances = distances;
+
+                        
+                      
                     }
                 }
 
@@ -332,12 +341,34 @@ namespace ApmLogger
                     }
                 }
             }
-            catch (ManagementException e)
+            catch 
             {
                 /* Do Nothing */
                 statusText.Content = "Please plug in the Hokuyu and APM";
                 startBtn.IsEnabled = false;
                 stopBtn.IsEnabled = false;
+            }
+        }
+
+        private void button_Copy_Click(object sender, RoutedEventArgs e)
+        {
+            if (current_zoom < zoom_max)
+            {
+                current_zoom = current_zoom + zoom_increment;
+            }
+        }
+
+        private void button_Copy1_Click(object sender, RoutedEventArgs e)
+        {
+            if (current_zoom > 10)
+            {
+                current_zoom = current_zoom - zoom_increment;
+            } else if (current_zoom < 10)
+            {
+                current_zoom = 1;
+            } else
+            {
+                current_zoom = 1;
             }
         }
     }
