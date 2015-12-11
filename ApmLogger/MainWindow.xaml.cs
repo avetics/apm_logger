@@ -168,7 +168,7 @@ namespace ApmLogger
                     try
                     {
                         Console.WriteLine(last_distances.Count());
-                        MainWindow.main.Status = String.Format("{4}   {5}   {0}   {1}   {2}    {3}", data[0], data[1], data[2], data[3], filesize, last_distances.Count());
+                        MainWindow.main.Status = String.Format("{4}   {5}   {0}   {1}   {2}    {3}", String.Format("{0}", float.Parse(data[0]) / 45.0f), String.Format("{0}", float.Parse(data[1]) / 45.0f), data[2], data[3], filesize, last_distances.Count());
                         gimbal = String.Format("{0}",float.Parse(data[0])/45.0f);
                         yaw = String.Format("{0}", float.Parse(data[1]) / 45.0f);
                         up_lidar = data[2];
@@ -339,7 +339,6 @@ namespace ApmLogger
         private void button_Click_1(object sender, RoutedEventArgs e)
         {
             refreshComPorts();
-      
 
         }
 
