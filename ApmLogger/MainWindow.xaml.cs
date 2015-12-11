@@ -76,8 +76,10 @@ namespace ApmLogger
             _visualize = true;
 
             Thread t = new Thread(parseSerialData);
+            t.IsBackground = true;
             t.Start();
             Thread h = new Thread(parseHokuyuData);
+            h.IsBackground = true;
             h.Start();
 
             stopBtn.IsEnabled = false;
@@ -91,14 +93,8 @@ namespace ApmLogger
             {
                 if (last_distances != null)
                 {
-                    try
-                    {
-                        Dispatcher.Invoke(new Action(() => { h_visualize(new List<long>(last_distances)); }));
-                    } catch
-                    {
 
-                    }
-                   
+                    Dispatcher.Invoke(new Action(() => { h_visualize(new List<long>(last_distances)); })); 
                     
                 }
             }
@@ -411,6 +407,11 @@ namespace ApmLogger
             {
                 current_zoom = 1;
             }
+        }
+
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            Environment.Exit(Environment.ExitCode);
         }
     }
 }
