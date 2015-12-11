@@ -19,10 +19,11 @@
         <Label x:Name="label_Copy" Content="Hokuyu" HorizontalAlignment="Left" Margin="105.8,461,0,0" VerticalAlignment="Top" Height="30" Width="53" FontSize="10.667" Grid.Column="1"/>
         <Label x:Name="apmComLabel" Content="" HorizontalAlignment="Left" Margin="51.8,460,0,0" VerticalAlignment="Top" Height="30" Width="49" FontSize="10.667" Grid.Column="1"/>
         <Label x:Name="hokuyuComLabel" Content="" HorizontalAlignment="Left" Margin="158.8,461,0,0" VerticalAlignment="Top" Height="30" Width="44" FontSize="10.667" Grid.Column="1"/>
-        <Button x:Name="button" Content="Refresh Ports" HorizontalAlignment="Left" Margin="207.8,461,0,0" VerticalAlignment="Top" Width="80" Height="29" Click="button_Click_1" Grid.Column="1"/>
+        <Button x:Name="button" Content="Refresh" HorizontalAlignment="Left" Margin="207.8,461,0,0" VerticalAlignment="Top" Width="80" Height="29" Click="button_Click_1" Grid.Column="1"/>
         <Button x:Name="zoom2" Content="-" HorizontalAlignment="Left" VerticalAlignment="Top" Width="34" Height="28" Click="button_Copy_Click" Grid.ColumnSpan="2" Margin="385.8,416,0,0" Grid.Column="1"/>
         <Button x:Name="zoom1" Content="+" HorizontalAlignment="Left" VerticalAlignment="Top" Width="34" Height="28" Click="button_Copy1_Click" Grid.Column="2" Margin="29.6,416,0,0"/>
         <Canvas x:Name="canvas" Height="292" Margin="0,10,31.8,0" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
+        <Label x:Name="label1" Content="Filesize   Hokuyu      Pitch            Yaw             UpLidar      DownLidar     " HorizontalAlignment="Left" Margin="13,395,0,0" VerticalAlignment="Top" Width="397" FontWeight="Bold" Grid.ColumnSpan="2"/>
 
     </Grid>
 </Window>

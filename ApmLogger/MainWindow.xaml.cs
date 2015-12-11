@@ -44,6 +44,7 @@ namespace ApmLogger
 
         //Global data vars
         static string gimbal;
+        static string yaw;
         static string up_lidar;
         static string down_lidar;
         static string filesize = "0 MB";
@@ -154,10 +155,11 @@ namespace ApmLogger
 
                     try
                     {
-                        MainWindow.main.Status = String.Format("{3} Hokuyu:{4} Pitch:{0} Lidar:{1}/{2}", data[0], data[1], data[2], filesize, last_distances.Count());
+                        MainWindow.main.Status = String.Format("{4}   {5}   {0}   {1}   {2}    {3}", data[0], data[1], data[2], data[3], filesize, last_distances.Count());
                         gimbal = String.Format("{0}",float.Parse(data[0])/45.0f);
-                        up_lidar = data[1];
-                        down_lidar = data[2];
+                        yaw = String.Format("{0}", float.Parse(data[1]) / 45.0f);
+                        up_lidar = data[2];
+                        down_lidar = data[3];
                     }
                     catch {
                         MainWindow.main.Status = String.Format("Date Error");
@@ -275,7 +277,7 @@ namespace ApmLogger
                         TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
 
 
-                        sw.WriteLine(t.TotalSeconds.ToString() + "," + gimbal + "," + up_lidar + "," + down_lidar +"," + parse_distance(distances));
+                        sw.WriteLine(t.TotalSeconds.ToString() + "," + gimbal + ","+ yaw + "," + up_lidar + "," + down_lidar +"," + parse_distance(distances));
 
                         last_distances = distances;
 
