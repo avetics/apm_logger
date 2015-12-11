@@ -35,6 +35,7 @@ namespace ApmLogger
 
         static bool _continue;
         static bool _visualize;
+        static bool _write_file;
         static SerialPort _serialPort;
         static string apmPort;
         static string hPort;
@@ -66,8 +67,22 @@ namespace ApmLogger
             aTimer.Interval = 1080;
             aTimer.Enabled = true;
 
+            //  _continue = false;
+            //  _visualize = false;
+            //  _write_file = false;
 
-            _visualize = false;
+            // startBtn.IsEnabled = false;
+            _continue = true;
+            _visualize = true;
+
+            Thread t = new Thread(parseSerialData);
+            t.Start();
+            Thread h = new Thread(parseHokuyuData);
+            h.Start();
+
+            stopBtn.IsEnabled = false;
+
+
         }
 
         private void OnTimedEvent(object source, ElapsedEventArgs e)
@@ -149,20 +164,18 @@ namespace ApmLogger
                     string message = _serialPort.ReadLine();
                     //Console.WriteLine(message);
                     IList<string> data = message.Split(',');
-                   // Console.WriteLine(data[1]);
-                    TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
-                    int ctime = (int)t.TotalSeconds;
 
                     try
                     {
+                        Console.WriteLine(last_distances.Count());
                         MainWindow.main.Status = String.Format("{4}   {5}   {0}   {1}   {2}    {3}", data[0], data[1], data[2], data[3], filesize, last_distances.Count());
                         gimbal = String.Format("{0}",float.Parse(data[0])/45.0f);
                         yaw = String.Format("{0}", float.Parse(data[1]) / 45.0f);
                         up_lidar = data[2];
                         down_lidar = data[3];
                     }
-                    catch {
-                        MainWindow.main.Status = String.Format("Date Error");
+                    catch (Exception e){
+                        MainWindow.main.Status = String.Format("Display {0}",  e.Message);
                     }
                    
 
@@ -181,50 +194,52 @@ namespace ApmLogger
       
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            _continue = true;
             string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             TimeSpan filetime = (DateTime.UtcNow - new DateTime(1970, 1, 1));
             path = System.IO.Path.Combine(desktop, filetime.TotalSeconds.ToString());
             log_num = log_num + 1;
             using (StreamWriter sw = File.CreateText(path))
-            {}
-            Thread t = new Thread(parseSerialData);
-            t.Start();
-            Thread h = new Thread(parseHokuyuData);
-            h.Start();
-            //parseHokuyuData();
+            { }
+
+            _write_file = true;
             startBtn.IsEnabled = false;
-            _visualize = true;
+            stopBtn.IsEnabled = true;
+
+
         }
 
 
         private void parseSerialData()
         {
-            StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
-            Thread readThread = new Thread(Read);
+            if (_continue)
+            {
+                StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
+                Thread readThread = new Thread(Read);
 
-            // Create a new SerialPort object with default settings.
-            _serialPort = new SerialPort();
+                // Create a new SerialPort object with default settings.
+                _serialPort = new SerialPort();
 
-            // Allow the user to set the appropriate properties.
-            _serialPort.PortName = apmPort;
-            _serialPort.BaudRate = 115200;
-            _serialPort.Parity = Parity.None;
-            _serialPort.DataBits = 8;
-            _serialPort.StopBits = StopBits.One;
-            _serialPort.Handshake = Handshake.None;
+                // Allow the user to set the appropriate properties.
+                _serialPort.PortName = apmPort;
+                _serialPort.BaudRate = 115200;
+                _serialPort.Parity = Parity.None;
+                _serialPort.DataBits = 8;
+                _serialPort.StopBits = StopBits.One;
+                _serialPort.Handshake = Handshake.None;
 
-            // Set the read/write timeouts
-            _serialPort.ReadTimeout = 500;
-            _serialPort.WriteTimeout = 500;
+                // Set the read/write timeouts
+                _serialPort.ReadTimeout = 500;
+                _serialPort.WriteTimeout = 500;
 
-            _serialPort.Open();
-            _continue = true;
-            readThread.Start();
+                _serialPort.Open();
+                _continue = true;
+                readThread.Start();
 
-         
-            readThread.Join();
-            _serialPort.Close();
+
+                readThread.Join();
+                _serialPort.Close();
+            }
+           
 
         }
       
@@ -264,26 +279,30 @@ namespace ApmLogger
                         continue;
                     }
                     // show distance data
-                    //Console.WriteLine(time_stamp.ToString() +"," + gimbal + "," + up_lidar+","+parse_distance(distances));
+                  //  Console.WriteLine(time_stamp.ToString() +"," + gimbal + "," + up_lidar+","+parse_distance(distances));
 
-                    using (StreamWriter sw = File.AppendText(path))
-                    {
-                        sw.AutoFlush = true; 
-                        long length = sw.BaseStream.Length;//will give expected output
-                        long KB = length / 1024;
-                        long MB = KB / 1024;
-                        filesize = String.Format("{0} MB", MB);
-                        // Console.WriteLine("{0} Distance values", distances.Count());
-                        TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
+                   
+                        using (StreamWriter sw = File.AppendText(path))
+                        {
+                            sw.AutoFlush = true;
+                            long length = sw.BaseStream.Length;//will give expected output
+                            long KB = length / 1024;
+                            long MB = KB / 1024;
+                            filesize = String.Format("{0} MB", MB);
+                            // Console.WriteLine("{0} Distance values", distances.Count());
+                            TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
+
+                            if (_write_file)
+                            {
+                            sw.WriteLine(t.TotalSeconds.ToString() + "," + gimbal + "," + yaw + "," + up_lidar + "," + down_lidar + "," + parse_distance(distances));
+                            }
+                            last_distances = distances;
 
 
-                        sw.WriteLine(t.TotalSeconds.ToString() + "," + gimbal + ","+ yaw + "," + up_lidar + "," + down_lidar +"," + parse_distance(distances));
 
-                        last_distances = distances;
-
-                        
-                      
-                    }
+                        }
+                    
+                   
                 }
 
                 urg.Write(SCIP_Writer.QT()); // stop measurement mode
@@ -292,6 +311,8 @@ namespace ApmLogger
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Hokuyu Error");
+
                 Console.WriteLine(ex.Message);
             }
            
@@ -307,16 +328,19 @@ namespace ApmLogger
 
         private void cancel_button_Click(object sender, RoutedEventArgs e)
         {
-            _continue = false;
-            _visualize = false;
             //System.Diagnostics.Process.Start("notepad.exe", path);
             startBtn.IsEnabled = true;
-            MainWindow.main.Status = "Click Start to log APM Data";
+            stopBtn.IsEnabled = false;
+           // MainWindow.main.Status = "Click Start to log APM Data";
+
+            _write_file = false;
         }
 
         private void button_Click_1(object sender, RoutedEventArgs e)
         {
             refreshComPorts();
+      
+
         }
 
         public void refreshComPorts()
