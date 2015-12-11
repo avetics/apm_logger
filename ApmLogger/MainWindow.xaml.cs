@@ -91,7 +91,14 @@ namespace ApmLogger
             {
                 if (last_distances != null)
                 {
-                    Dispatcher.Invoke(new Action(() => { h_visualize(new List<long>(last_distances)); })); 
+                    try
+                    {
+                        Dispatcher.Invoke(new Action(() => { h_visualize(new List<long>(last_distances)); }));
+                    } catch
+                    {
+
+                    }
+                   
                     
                 }
             }
@@ -175,7 +182,7 @@ namespace ApmLogger
                         down_lidar = data[3];
                     }
                     catch (Exception e){
-                        MainWindow.main.Status = String.Format("Display {0}",  e.Message);
+                       // MainWindow.main.Status = String.Format("Display {0}",  e.Message);
                     }
                    
 
