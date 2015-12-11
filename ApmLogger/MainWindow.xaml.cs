@@ -38,7 +38,8 @@ namespace ApmLogger
         static SerialPort _serialPort;
         static string apmPort;
         static string hPort;
-        static string path = @"apm_log.csv";
+        static string path = @"apm_log";
+        static int log_num = 1;
         const int scan_width = 1080;
 
         //Global data vars
@@ -153,8 +154,8 @@ namespace ApmLogger
 
                     try
                     {
-                        MainWindow.main.Status = String.Format("size:{3} Pitch:{0} Lidar:{1}/{2}", data[0], data[1], data[2], filesize);
-                        gimbal = data[0];
+                        MainWindow.main.Status = String.Format("{3} Hokuyu:{4} Pitch:{0} Lidar:{1}/{2}", data[0], data[1], data[2], filesize, last_distances.Count());
+                        gimbal = String.Format("{0}",float.Parse(data[0])/45.0f);
                         up_lidar = data[1];
                         down_lidar = data[2];
                     }
@@ -179,6 +180,10 @@ namespace ApmLogger
         private void button_Click(object sender, RoutedEventArgs e)
         {
             _continue = true;
+            string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            TimeSpan filetime = (DateTime.UtcNow - new DateTime(1970, 1, 1));
+            path = System.IO.Path.Combine(desktop, filetime.TotalSeconds.ToString());
+            log_num = log_num + 1;
             using (StreamWriter sw = File.CreateText(path))
             {}
             Thread t = new Thread(parseSerialData);
@@ -266,9 +271,11 @@ namespace ApmLogger
                         long KB = length / 1024;
                         long MB = KB / 1024;
                         filesize = String.Format("{0} MB", MB);
-                       // Console.WriteLine("{0} Distance values", distances.Count());
+                        // Console.WriteLine("{0} Distance values", distances.Count());
+                        TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
 
-                        sw.WriteLine(time_stamp.ToString() + "," + gimbal + "," + up_lidar + "," + down_lidar +"," + parse_distance(distances));
+
+                        sw.WriteLine(t.TotalSeconds.ToString() + "," + gimbal + "," + up_lidar + "," + down_lidar +"," + parse_distance(distances));
 
                         last_distances = distances;
 
@@ -300,7 +307,7 @@ namespace ApmLogger
         {
             _continue = false;
             _visualize = false;
-            System.Diagnostics.Process.Start("notepad.exe", path);
+            //System.Diagnostics.Process.Start("notepad.exe", path);
             startBtn.IsEnabled = true;
             MainWindow.main.Status = "Click Start to log APM Data";
         }
