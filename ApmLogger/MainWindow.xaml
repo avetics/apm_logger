@@ -13,19 +13,20 @@
             <ColumnDefinition Width="344*"/>
             <ColumnDefinition Width="80*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="stopBtn" Content="Stop " HorizontalAlignment="Left" Margin="286.724,461,0,0" VerticalAlignment="Top" Width="58"  Height="29" Click="cancel_button_Click" Grid.Column="2" Grid.ColumnSpan="2"/>
-        <Label x:Name="label" Content="APM " HorizontalAlignment="Left" Margin="7.8,460,0,0" VerticalAlignment="Top" Height="30" Width="35" FontSize="10.667" Grid.Column="1"/>
-        <Button x:Name="startBtn" Content="Start" HorizontalAlignment="Left" Margin="217.724,461,0,0" VerticalAlignment="Top" Width="64" Click="button_Click" Height="29" Grid.Column="2"/>
+        <Button x:Name="stopBtn" Content="Stop " HorizontalAlignment="Left" Margin="248.766,461,0,0" VerticalAlignment="Top" Width="53"  Height="29" Click="cancel_button_Click" Grid.Column="2"/>
+        <Label x:Name="label" Content="APM " Margin="0.966,458,11.234,0" VerticalAlignment="Top" Height="30" FontSize="10.667" Grid.Column="1"/>
+        <Button x:Name="startBtn" Content="Start" HorizontalAlignment="Left" Margin="186.766,461,0,0" VerticalAlignment="Top" Width="57" Click="button_Click" Height="29" Grid.Column="2"/>
         <Label x:Name="statusText" Content="" Margin="21,416,7.8,0" VerticalAlignment="Top" Width="464" Height="42" HorizontalAlignment="Center" Grid.ColumnSpan="4" FontSize="16"/>
-        <Label x:Name="label_Copy" Content="Hokuyu" HorizontalAlignment="Left" Margin="48.724,461,0,0" VerticalAlignment="Top" Height="30" Width="53" FontSize="10.667" Grid.Column="2"/>
-        <Label x:Name="apmComLabel" Content="" HorizontalAlignment="Left" Margin="4.724,460,0,0" VerticalAlignment="Top" Height="30" Width="39" FontSize="10.667" Grid.Column="2"/>
-        <Label x:Name="hokuyuComLabel" Content="" HorizontalAlignment="Left" Margin="106.724,461,0,0" VerticalAlignment="Top" Height="30" Width="35" FontSize="10.667" Grid.Column="2"/>
-        <Button x:Name="button" Content="Refresh" HorizontalAlignment="Left" Margin="146.724,461,0,0" VerticalAlignment="Top" Width="66" Height="29" Click="button_Click_1" Grid.Column="2"/>
+        <Label x:Name="label_Copy" Content="Hokuyu" HorizontalAlignment="Left" Margin="38.766,461,0,0" VerticalAlignment="Top" Height="30" Width="43" FontSize="10.667" Grid.Column="2"/>
+        <Label x:Name="apmComLabel" Content="" HorizontalAlignment="Left" Margin="4.766,458,0,0" VerticalAlignment="Top" Height="30" Width="31" FontSize="10.667" Grid.Column="2"/>
+        <Label x:Name="hokuyuComLabel" Content="" HorizontalAlignment="Left" Margin="86.766,461,0,0" VerticalAlignment="Top" Height="30" Width="35" FontSize="10.667" Grid.Column="2"/>
+        <Button x:Name="button" Content="Refresh" HorizontalAlignment="Left" Margin="126.766,461,0,0" VerticalAlignment="Top" Width="55" Height="29" Click="button_Click_1" Grid.Column="2"/>
         <Button x:Name="zoom2" Content="-" HorizontalAlignment="Left" VerticalAlignment="Top" Width="34" Height="28" Click="button_Copy_Click" Grid.ColumnSpan="2" Margin="339,416,0,0" Grid.Column="2"/>
         <Button x:Name="zoom1" Content="+" HorizontalAlignment="Left" VerticalAlignment="Top" Width="34" Height="28" Click="button_Copy1_Click" Grid.Column="3" Margin="29.6,416,0,0"/>
         <Canvas x:Name="canvas" Height="292" Margin="0,10,31.8,0" VerticalAlignment="Top" Grid.ColumnSpan="4"/>
         <Label x:Name="label1" Content="Filesize   Hokuyu      Pitch            Yaw             UpLidar      DownLidar     " HorizontalAlignment="Left" Margin="13,395,0,0" VerticalAlignment="Top" Width="397" FontWeight="Bold" Grid.ColumnSpan="3"/>
-        <Button x:Name="button1" Content="Exit" Grid.Column="3" HorizontalAlignment="Left" Margin="7.164,462,0,0" VerticalAlignment="Top" Width="56" Height="28" Click="button1_Click"/>
+        <Button x:Name="button1" Content="Exit" Grid.Column="3" HorizontalAlignment="Left" Margin="21.33,462,0,0" VerticalAlignment="Top" Width="51" Height="28" Click="button1_Click"/>
+        <Button x:Name="calibBtn" Content="Calib" HorizontalAlignment="Left" Margin="307.766,461,0,0" VerticalAlignment="Top" Width="53"  Height="29" Grid.Column="2" Grid.ColumnSpan="2" Click="calibBtn_Click"/>
 
     </Grid>
 </Window>

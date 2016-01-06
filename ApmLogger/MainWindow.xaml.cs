@@ -33,6 +33,13 @@ namespace ApmLogger
     public partial class MainWindow : Window
     {
 
+        //Caliberation vals
+        const float calib_ceiling = 200;
+        const float calib_floor = 200;
+
+        static float calib_up_lidar = 0;
+        static float calib_down_lidar = 0;
+
         static bool _continue;
         static bool _visualize;
         static bool _write_file;
@@ -170,14 +177,15 @@ namespace ApmLogger
 
                     try
                     {
-                        Console.WriteLine(last_distances.Count());
-                        MainWindow.main.Status = String.Format("{4}   {5}   {0}   {1}   {2}    {3}", String.Format("{0}", float.Parse(data[0]) / 45.0f), String.Format("{0}", float.Parse(data[1]) / 45.0f), data[2], data[3], filesize, last_distances.Count());
-                        gimbal = String.Format("{0}",float.Parse(data[0])/45.0f);
+                        // Console.WriteLine(last_distances.Count());
+                        gimbal = String.Format("{0}", float.Parse(data[0]) / 45.0f);
                         yaw = String.Format("{0}", float.Parse(data[1]) / 45.0f);
-                        up_lidar = data[2];
-                        down_lidar = data[3];
+                        up_lidar = String.Format("{0}",(float.Parse(data[2]) + calib_up_lidar));
+                        down_lidar = String.Format("{0}", (float.Parse(data[3]) + calib_down_lidar));
+                        MainWindow.main.Status = String.Format("{4}   {5}   {0}   {1}   {2}    {3}", String.Format("{0}", float.Parse(data[0]) / 45.0f), String.Format("{0}", float.Parse(data[1]) / 45.0f), up_lidar, down_lidar, filesize, last_distances.Count());
+                      
                     }
-                    catch (Exception e){
+                    catch {
                        // MainWindow.main.Status = String.Format("Display {0}",  e.Message);
                     }
                    
@@ -242,11 +250,8 @@ namespace ApmLogger
                 readThread.Join();
                 _serialPort.Close();
             }
-           
-
         }
       
-
         private void parseHokuyuData()
         {
            // const int GET_NUM = 10;
@@ -358,7 +363,7 @@ namespace ApmLogger
                     string desc = item["Description"].ToString();
                     string deviceId = item["DeviceID"].ToString();
 
-                    Console.WriteLine(deviceId);
+                   // Console.WriteLine(deviceId);
 
                     if (desc.Contains("Arduino"))
                     {
@@ -413,5 +418,29 @@ namespace ApmLogger
         {
             Environment.Exit(Environment.ExitCode);
         }
+
+        private void calibBtn_Click(object sender, RoutedEventArgs e)
+        {
+            //caliberate lidar
+            try
+            {
+                string message = _serialPort.ReadLine();
+                //Console.WriteLine(message);
+                IList<string> data = message.Split(',');
+
+                try
+                {
+                    Console.WriteLine("{0},{1}", float.Parse(data[2]), float.Parse(data[3]));
+                    calib_up_lidar =  calib_ceiling - float.Parse(data[2]);
+                    calib_down_lidar = calib_floor -float.Parse(data[3]);
+                }
+                catch {}
+            }
+            catch (TimeoutException) { }
+        }
+
+
+
+    
     }
 }
