@@ -33,12 +33,14 @@ namespace ApmLogger
     public partial class MainWindow : Window
     {
 
+
         //Caliberation vals
         const float calib_ceiling = 200;
         const float calib_floor = 200;
 
         static float calib_up_lidar = 0;
         static float calib_down_lidar = 0;
+        static float calib_h_yaw = 0;
 
         static bool _continue;
         static bool _visualize;
@@ -115,7 +117,8 @@ namespace ApmLogger
             Dispatcher.Invoke(new Action(() => { canvas.Children.Clear(); }));
 
            
-            float angle = -45;
+            float angle = -45+calib_h_yaw;
+           //  Console.WriteLine(angle);
             float increment = 1 / 4.0f;// 4.22f;
             foreach (long s in d)
             {
@@ -215,8 +218,7 @@ namespace ApmLogger
             _write_file = true;
             startBtn.IsEnabled = false;
             stopBtn.IsEnabled = true;
-
-
+            
         }
 
 
@@ -245,8 +247,7 @@ namespace ApmLogger
                 _serialPort.Open();
                 _continue = true;
                 readThread.Start();
-
-
+                
                 readThread.Join();
                 _serialPort.Close();
             }
@@ -433,6 +434,11 @@ namespace ApmLogger
                     Console.WriteLine("{0},{1}", float.Parse(data[2]), float.Parse(data[3]));
                     calib_up_lidar =  calib_ceiling - float.Parse(data[2]);
                     calib_down_lidar = calib_floor -float.Parse(data[3]);
+
+                    List<long> newList = new List<long>(last_distances);
+                    //newList.Reverse();
+                    caliberate_hok(newList);
+
                 }
                 catch {}
             }
@@ -440,7 +446,30 @@ namespace ApmLogger
         }
 
 
+        private void caliberate_hok(List<long> distances)
+        {
+            Console.WriteLine("Calib Hok: {0}",distances.Count()/2);
+            int i = -1;
 
+            foreach (long distance in distances)
+            {
+                i++;
+                // do something
+                if (distance > 300)
+                {
+                    Console.WriteLine("Break INDEx {0}", i);
+                    float diff = distances.Count() / 2 - i;
+                    calib_h_yaw = diff*float.Parse("0.25");
+                    break;
+                }
+               //  Console.WriteLine("{0} = {1}",i, distance);
+
+            }
+
+          
+
+
+        }
     
     }
 }
