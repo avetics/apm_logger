@@ -37,10 +37,12 @@ namespace ApmLogger
         //Caliberation vals
         const float calib_ceiling = 200;
         const float calib_floor = 200;
+        const float calib_distance = 175;
 
         static float calib_up_lidar = 0;
         static float calib_down_lidar = 0;
         static float calib_h_yaw = 0;
+        static float calib_h_distance = 0;
 
         static bool _continue;
         static bool _visualize;
@@ -288,10 +290,16 @@ namespace ApmLogger
                         continue;
                     }
                     // show distance data
-                  //  Console.WriteLine(time_stamp.ToString() +"," + gimbal + "," + up_lidar+","+parse_distance(distances));
+                    //  Console.WriteLine(time_stamp.ToString() +"," + gimbal + "," + up_lidar+","+parse_distance(distances));
 
-                   
-                        using (StreamWriter sw = File.AppendText(path))
+                    //caliberate distances
+                    //calib_h_distance
+                    distances.ForEach(delegate (long element)
+                    {
+                        element = element + (long)calib_h_distance;
+                    });
+
+                    using (StreamWriter sw = File.AppendText(path))
                         {
                             sw.AutoFlush = true;
                             long length = sw.BaseStream.Length;//will give expected output
@@ -423,26 +431,7 @@ namespace ApmLogger
         private void calibBtn_Click(object sender, RoutedEventArgs e)
         {
             //caliberate lidar
-            try
-            {
-                string message = _serialPort.ReadLine();
-                //Console.WriteLine(message);
-                IList<string> data = message.Split(',');
-
-                try
-                {
-                    Console.WriteLine("{0},{1}", float.Parse(data[2]), float.Parse(data[3]));
-                    calib_up_lidar =  calib_ceiling - float.Parse(data[2]);
-                    calib_down_lidar = calib_floor -float.Parse(data[3]);
-
-                    List<long> newList = new List<long>(last_distances);
-                    //newList.Reverse();
-                    caliberate_hok(newList);
-
-                }
-                catch {}
-            }
-            catch (TimeoutException) { }
+          
         }
 
 
@@ -470,6 +459,56 @@ namespace ApmLogger
 
 
         }
-    
+
+        private void button2_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string message = _serialPort.ReadLine();
+                //Console.WriteLine(message);
+                IList<string> data = message.Split(',');
+
+                try
+                {
+                    Console.WriteLine("{0},{1}", float.Parse(data[2]), float.Parse(data[3]));
+                    calib_up_lidar = calib_ceiling - float.Parse(data[2]);
+                    calib_down_lidar = calib_floor - float.Parse(data[3]);
+
+                 
+
+                }
+                catch { }
+            }
+            catch (TimeoutException) { }
+        }
+
+        private void button2_Copy_Click(object sender, RoutedEventArgs e)
+        {
+            List<long> newList = new List<long>(last_distances);
+            //newList.Reverse();
+            caliberate_hok(newList);
+        }
+
+        private void button2_Copy1_Click(object sender, RoutedEventArgs e)
+        {
+            List<long> newList = new List<long>(last_distances);
+            int i = 0;
+            float sum = 0;
+            foreach (long distance in newList)
+            {
+                i++;
+                if (i > 500 && i < 506)
+                {
+                    sum = distance + sum;
+                    Console.WriteLine("{0} = {1}",i, distance);
+                }
+                //
+
+            }
+           
+            calib_h_distance = calib_distance - (sum / 5);
+            Console.WriteLine(calib_h_distance);
+
+        }
     }
 }
