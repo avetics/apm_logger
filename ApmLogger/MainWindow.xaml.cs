@@ -35,9 +35,9 @@ namespace ApmLogger
 
 
         //Caliberation vals
-        const float calib_ceiling = 200;
-        const float calib_floor = 200;
-        const float calib_distance = 175;
+        static float calib_ceiling = 200;
+        static float calib_floor = 200;
+        static float calib_distance = 175;
 
         static float calib_up_lidar = 0;
         static float calib_down_lidar = 0;
@@ -95,7 +95,30 @@ namespace ApmLogger
 
             stopBtn.IsEnabled = false;
 
+            load_calib();
+        }
 
+        private void load_calib()
+        {
+            var allLines = System.IO.File.ReadAllLines(@"calib.txt").ToList();
+            // Console.WriteLine("Calib Data {0}, {1}, {2}", allLines[0], allLines[1], allLines[2]);
+            calib_ceiling = float.Parse(allLines[0]);
+            calib_floor = float.Parse(allLines[1]);
+            calib_distance = float.Parse(allLines[2]);
+            calib_up_lidar = float.Parse(allLines[3]); ;
+            calib_down_lidar = float.Parse(allLines[4]); ;
+            calib_h_yaw = float.Parse(allLines[5]); ;
+            calib_h_distance = float.Parse(allLines[6]); ;
+
+        }
+
+        private void write_calib()
+        {
+            // load_calib();
+
+            List<string> calib_data = new List<string> { calib_ceiling.ToString(), calib_floor.ToString(),calib_distance.ToString(),
+                calib_up_lidar.ToString(),calib_down_lidar.ToString(), calib_h_yaw.ToString(), calib_h_distance.ToString() };
+            System.IO.File.WriteAllLines(@"calib.txt", calib_data);
         }
 
         private void OnTimedEvent(object source, ElapsedEventArgs e)
@@ -194,9 +217,7 @@ namespace ApmLogger
                        // MainWindow.main.Status = String.Format("Display {0}",  e.Message);
                     }
                    
-
-                  
-
+                    
                   //  using (StreamWriter sw = File.AppendText(path))
                   //  {
                   //      sw.WriteLine("{0},{1},{2}",t,data[0],data[1]);
@@ -480,6 +501,7 @@ namespace ApmLogger
                 catch { }
             }
             catch (TimeoutException) { }
+            write_calib();
         }
 
         private void button2_Copy_Click(object sender, RoutedEventArgs e)
@@ -487,6 +509,7 @@ namespace ApmLogger
             List<long> newList = new List<long>(last_distances);
             //newList.Reverse();
             caliberate_hok(newList);
+            write_calib();
         }
 
         private void button2_Copy1_Click(object sender, RoutedEventArgs e)
@@ -508,6 +531,36 @@ namespace ApmLogger
            
             calib_h_distance = calib_distance - (sum / 5);
             Console.WriteLine(calib_h_distance);
+            write_calib();
+        }
+
+        private void button3_Click(object sender, RoutedEventArgs e)
+        {
+            List<long> newList = new List<long>(last_distances);
+            int i = 0;
+            float sum = 0;
+            foreach (long distance in newList)
+            {
+                i++;
+                if (i > 500 && i < 506)
+                {
+                    sum = distance + sum;
+                    Console.WriteLine("{0} = {1}", i, distance);
+                }
+                //
+
+            }
+
+
+        }
+
+        private void button4_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void frame_Navigated(object sender, NavigationEventArgs e)
+        {
 
         }
     }
