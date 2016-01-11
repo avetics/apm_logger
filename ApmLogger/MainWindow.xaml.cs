@@ -44,6 +44,10 @@ namespace ApmLogger
         static float calib_h_yaw = 0;
         static float calib_h_distance = 0;
 
+        static float calib_h_pitch = 0;
+        static float calib_h_roll = 0;
+        static float calib_gimbal_pitch = 0;
+
         static bool _continue;
         static bool _visualize;
         static bool _write_file;
@@ -105,10 +109,26 @@ namespace ApmLogger
             calib_ceiling = float.Parse(allLines[0]);
             calib_floor = float.Parse(allLines[1]);
             calib_distance = float.Parse(allLines[2]);
-            calib_up_lidar = float.Parse(allLines[3]); ;
-            calib_down_lidar = float.Parse(allLines[4]); ;
-            calib_h_yaw = float.Parse(allLines[5]); ;
-            calib_h_distance = float.Parse(allLines[6]); ;
+            calib_up_lidar = float.Parse(allLines[3]); 
+            calib_down_lidar = float.Parse(allLines[4]); 
+            calib_h_yaw = float.Parse(allLines[5]); 
+            calib_h_distance = float.Parse(allLines[6]); 
+            calib_h_pitch = float.Parse(allLines[7]);
+            calib_h_roll = float.Parse(allLines[8]);
+            calib_gimbal_pitch = float.Parse(allLines[9]);
+
+            /*caliberation 
+            actual distance to ceiling
+            actual distance to floor
+            actual distance for hokuyu
+            up lidar caliberation
+            down lidar caliberation
+            hokuyu yaw
+            hokuyu distance
+            hokuyu pitch
+            hokuyu roll
+            gimal pitch caliberation
+            */
 
         }
 
@@ -117,7 +137,8 @@ namespace ApmLogger
             // load_calib();
 
             List<string> calib_data = new List<string> { calib_ceiling.ToString(), calib_floor.ToString(),calib_distance.ToString(),
-                calib_up_lidar.ToString(),calib_down_lidar.ToString(), calib_h_yaw.ToString(), calib_h_distance.ToString() };
+                calib_up_lidar.ToString(),calib_down_lidar.ToString(), calib_h_yaw.ToString(), calib_h_distance.ToString(), 
+                  calib_h_pitch.ToString(), calib_h_roll.ToString(), calib_gimbal_pitch.ToString() };
             System.IO.File.WriteAllLines(@"calib.txt", calib_data);
         }
 
